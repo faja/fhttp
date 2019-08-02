@@ -1,3 +1,4 @@
 ---
-code: 503
-content: test content
+code: 200
+content: <h1>test content</h1>
+content-type: text/html

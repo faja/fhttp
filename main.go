@@ -14,18 +14,19 @@ var f = flag.String("f", "httpContent.yaml", "path to static file to serve")
 var p = flag.Int("p", 8042, "port http server listens on")
 
 type response struct {
-	Code    int    `yaml:"code"`
-	Content string `yaml:"content"`
+	Code        int    `yaml:"code"`
+	Content     string `yaml:"content"`
+	ContentType string `yaml:"content-type"`
 }
 
 func main() {
 	flag.Parse()
 
-	resp := response{
-		Code: 200,
-	}
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		resp := response{
+			Code: 200,
+		}
+
 		d, err := ioutil.ReadFile(*f)
 		if err != nil {
 			log.Fatalf("could not open file: %v", err)
@@ -36,6 +37,9 @@ func main() {
 			log.Fatalf("could not unmarshal yaml: %v", err)
 		}
 
+		if resp.ContentType != "" {
+			w.Header().Add("Content-Type", resp.ContentType)
+		}
 		w.WriteHeader(resp.Code)
 		fmt.Fprintf(w, resp.Content)
 	})
