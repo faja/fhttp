@@ -12,11 +12,12 @@ import (
 
 var f = flag.String("f", "httpContent.yaml", "path to static file to serve")
 var p = flag.Int("p", 8042, "port http server listens on")
+var a = flag.Bool("a", false, "listen on all interfaces (default false)")
 
 type response struct {
 	Code        int    `yaml:"code"`
-	Content     string `yaml:"content"`
 	ContentType string `yaml:"content-type"`
+	Content     string `yaml:"content"`
 }
 
 func main() {
@@ -43,7 +44,13 @@ func main() {
 		w.WriteHeader(resp.Code)
 		fmt.Fprintf(w, resp.Content)
 	})
-	addr := fmt.Sprintf("127.0.0.1:%d", *p)
+
+	i := "127.0.0.1"
+	if *a {
+		i = ""
+	}
+
+	addr := fmt.Sprintf("%s:%d", i, *p)
 	log.Printf("Starting http server on %s", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
